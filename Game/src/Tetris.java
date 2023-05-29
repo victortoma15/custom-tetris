@@ -1,29 +1,15 @@
-// Tetris.java
-//
-// Written in 2013 by Johannes Holzfuß <johannes@holzfuss.name>
-//
-// To the extent possible under law, the author(s) have dedicated all copyright
-// and related and neighboring rights to this software to the public domain
-// worldwide. This software is distributed without any warranty.
-//
-// You should have received a copy of the CC0 Public Domain Dedication along
-// with this software. If not, see
-// <http://creativecommons.org/publicdomain/zero/1.0/>.
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public class Tetris extends JPanel {
-
-    private static final long serialVersionUID = -8715353373678321308L;
 
     private final Point[][][] Tetraminos = {
             // I-Piece
@@ -91,12 +77,14 @@ public class Tetris extends JPanel {
     private int currentPiece;
     private int rotation;
     private ArrayList<Integer> nextPieces = new ArrayList<Integer>();
+    private boolean isGameOver;
 
     private long score;
     private Color[][] well;
 
     // Creates a border around the well and initializes the dropping piece
     private void init() {
+        isGameOver = false;
         well = new Color[12][24];
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 23; j++) {
@@ -132,7 +120,7 @@ public class Tetris extends JPanel {
         return false;
     }
 
-    // Rotate the piece clockwise or counterclockwise
+    // Rotate the piece clockwise or counter-clockwise
     public void rotate(int i) {
         int newRotation = (rotation + i) % 4;
         if (newRotation < 0) {
@@ -158,9 +146,24 @@ public class Tetris extends JPanel {
             pieceOrigin.y += 1;
         } else {
             fixToWell();
+            if (isGameOver) {
+                gameOver();
+                return;
+            }
         }
         repaint();
     }
+
+
+
+    // Method to handle the "Game Over" state
+    public void gameOver() {
+        JOptionPane.showMessageDialog(this, "Game Over!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        // Reset the game
+        score = 0;
+        init();
+    }
+
 
     // Make the dropping piece part of the well, so it is available for
     // collision detection.
@@ -170,7 +173,13 @@ public class Tetris extends JPanel {
         }
         clearRows();
         newPiece();
+
+        // Check for Game Over
+        if (collidesAt(pieceOrigin.x, pieceOrigin.y, rotation)) {
+            isGameOver = true;
+        }
     }
+
 
     public void deleteRow(int row) {
         for (int j = row-1; j > 0; j--) {
@@ -240,8 +249,9 @@ public class Tetris extends JPanel {
         }
 
         // Display the score
+        g.setFont(new Font("Arial",Font.PLAIN, 18));
         g.setColor(Color.WHITE);
-        g.drawString("" + score, 19*12, 25);
+        g.drawString("Score: " + score, 16*12, 27);
 
         // Draw the currently falling piece
         drawPiece(g);
@@ -292,7 +302,7 @@ public class Tetris extends JPanel {
             @Override public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1500);
                         game.dropDown();
                     } catch ( InterruptedException e ) {}
                 }
