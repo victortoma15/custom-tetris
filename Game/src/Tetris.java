@@ -6,11 +6,19 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.swing.*;
 
 public class Tetris extends JPanel {
-
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/scores";
+    private static final String DB_USERNAME = "root";
+    private static final String DB_PASSWORD = "gabi";
     private final Point[][][] Tetraminos = {
             // I-Piece
             {
@@ -78,6 +86,7 @@ public class Tetris extends JPanel {
     private int rotation;
     private ArrayList<Integer> nextPieces = new ArrayList<Integer>();
     private boolean isGameOver;
+    private String playerName;
 
     private long score;
     private Color[][] well;
@@ -96,6 +105,10 @@ public class Tetris extends JPanel {
             }
         }
         newPiece();
+        getPlayerName();
+    }
+    private void getPlayerName() {
+        playerName = JOptionPane.showInputDialog(this, "Enter your name:");
     }
 
     // Put a new, random piece into the dropping position
@@ -159,6 +172,7 @@ public class Tetris extends JPanel {
     // Method to handle the "Game Over" state
     public void gameOver() {
         JOptionPane.showMessageDialog(this, "Game Over!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        exportScoresToDatabase(playerName, score);
         // Reset the game
         score = 0;
         init();
@@ -257,6 +271,7 @@ public class Tetris extends JPanel {
         drawPiece(g);
     }
 
+
     public static void main(String[] args) {
         JFrame f = new JFrame("Tetris");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -309,4 +324,18 @@ public class Tetris extends JPanel {
             }
         }.start();
     }
+    public static void exportScoresToDatabase(String playerName, long userScore) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD)) {
+            // Insert the player name and score into the database
+            String insertQuery = "INSERT INTO score (player_name, player_score) VALUES (?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(insertQuery)) {
+                statement.setString(1, playerName);
+                statement.setLong(2, userScore);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
