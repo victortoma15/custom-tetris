@@ -52,8 +52,9 @@ public class Tetris extends JPanel {
         getPlayerName();
     }
     private void getPlayerName() {
-        playerName = JOptionPane.showInputDialog(this, "Enter your name:");
+        playerName = JOptionPane.showInputDialog(this, "Enter your name:", null, JOptionPane.PLAIN_MESSAGE);
     }
+
     // Put a new, random piece into the dropping position
     public void newPiece() {
         pieceOrigin = new Point(9, 2);
@@ -208,6 +209,7 @@ public class Tetris extends JPanel {
         JFrame f = new JFrame("Tetris");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setSize(20*26+10, 26*29+25);
+        f.setIconImage(new ImageIcon(new byte[0]).getImage());
         f.setVisible(true);
 
         final Tetris game = new Tetris();
