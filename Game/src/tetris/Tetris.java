@@ -35,7 +35,7 @@ public class Tetris extends JPanel {
     private String playerName;
     private long score;
     private Color[][] well;
-    // Creates a border around the well and initializes the dropping piece
+    // Creates a border around the board and initializes the dropping piece
     private void init() {
         isGameOver = false;
         well = new Color[20][30];
@@ -54,7 +54,6 @@ public class Tetris extends JPanel {
     private void getPlayerName() {
         playerName = JOptionPane.showInputDialog(this, "Enter your name:", null, JOptionPane.PLAIN_MESSAGE);
     }
-
     // Put a new, random piece into the dropping position
     public void newPiece() {
         pieceOrigin = new Point(9, 2);
@@ -93,7 +92,7 @@ public class Tetris extends JPanel {
         }
         repaint();
     }
-    // Drops the piece one line or fixes it to the well if it can't drop
+    // Drops the piece one line or fixes it to the board if it can't drop
     public void dropDown() {
         if (!collidesAt(pieceOrigin.x, pieceOrigin.y + 1, rotation)) {
             pieceOrigin.y += 1;
@@ -106,7 +105,7 @@ public class Tetris extends JPanel {
         }
         repaint();
     }
-    // Method to handle the "Game Over" state
+    // Game over state
     public void gameOver() {
         Object[] options = {"Quit", "Play Again"};
         int choice = JOptionPane.showOptionDialog(this, "Game Over!", "Game Over", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
@@ -120,7 +119,7 @@ public class Tetris extends JPanel {
         }
         init();
     }
-    // Make the dropping piece part of the well, so it is available for
+    // Make the dropping piece part of the board, so it is available for
     // collision detection.
     public void fixToWell() {
         for (Point p : Tetraminos[currentPiece].getPiece()[rotation]) {
@@ -142,7 +141,7 @@ public class Tetris extends JPanel {
         }
     }
     // Clear completed rows from the field and award score according to
-    // the number of simultaneously cleared rows.
+    // the number of cleared rows at the same time.
     public void clearRows() {
         boolean gap;
         int numClears = 0;
